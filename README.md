@@ -21,7 +21,7 @@ This project is a Flask-based backend for an object detection model that identif
 
 ## Installation
 
-To get started with the backend, follow these steps:
+To get started with the backend, follow these steps to setup locally:
 
 1. **Clone the repository:**
     ```bash
@@ -105,12 +105,12 @@ Once the server is running, it will be ready to receive images from the Flutter 
 ## Contributing
     We welcome contributions to improve this project. If you would like to contribute, please follow these steps:
 
-    **1. Fork the repository.** 
-    **2. Create a new branch (git checkout -b feature/your-feature-name).**
-    **3. Make your changes.**
-    **4. Commit your changes (git commit -m 'Add some feature').**
-    **5. Push to the branch (git push origin feature/your-feature-name).**
-    **6. Open a Pull Request.**
+    1. Fork the repository.
+    2. Create a new branch (git checkout -b feature/your-feature-name).
+    3. Make your changes.
+    4. Commit your changes (git commit -m 'Add some feature').
+    5. Push to the branch (git push origin feature/your-feature-name).
+    6. Open a Pull Request.
 
 
 ## License
