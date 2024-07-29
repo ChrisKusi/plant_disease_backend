@@ -770,8 +770,8 @@ def draw_detections(image, results):
     return image, detections
 
 def send_email(to_email, subject, body, attachment_path):
-    from_email = "kusichris656@gmail.com"
-    from_password = "ksacvljysbzrxqzl"
+    from_email = "leafscan0@gmail.com"
+    from_password = "vjcyoihxxcomqqga"
 
     # Create the email
     msg = MIMEMultipart()
