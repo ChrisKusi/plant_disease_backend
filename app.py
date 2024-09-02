@@ -808,6 +808,66 @@ def send_email(to_email, subject, body, attachment_path):
     server.sendmail(from_email, to_email, msg.as_string())
     server.quit()
 
+# @app.route('/detect', methods=['POST'])
+# def detect():
+#     logging.debug('Received request for /detect')
+#     try:
+#         file = request.files['image']
+#         filename = secure_filename(file.filename)
+#         file_id = str(uuid.uuid4())
+#         file_path = os.path.join(app.config['UPLOAD_FOLDER'], file_id + '_' + filename)
+#         file.save(file_path)
+
+#         image = cv2.imread(file_path)
+#         results = detect_disease(image)
+#         image_with_detections, detections = draw_detections(image, results)
+
+#         processed_filename = file_id + '_processed.png'
+#         processed_file_path = os.path.join(app.config['PROCESSED_FOLDER'], processed_filename)
+#         cv2.imwrite(processed_file_path, image_with_detections)
+
+#         # Extract metadata and location
+#         metadata = extract_metadata(file_path)
+#         location = extract_location(metadata)
+#         google_maps_link = f"https://www.google.com/maps/place/{location.replace(' ', '+')}" if location else "Location not available"
+
+#         # Load user data
+#         user_data = load_user_data()
+#         email = user_data.get('email')
+#         name = user_data.get('name')
+
+#         # Prepare email
+#         if email:
+#             subject = "Plant Disease Detection Report"
+#             body = f"""
+#             Dear {name},
+
+#             Here is the detection report for the image you uploaded:
+
+#             Disease: {detections[0]['class_name']}
+#             Confidence: {detections[0]['confidence']:.2f}
+#             Location: {location}
+#             Google Maps Link: {google_maps_link}
+
+#             Attached is the processed image with the detections highlighted.
+
+#             Best regards,
+#             Your Plant Disease Detection Team
+#             """
+#             send_email(email, subject, body, processed_file_path)
+
+#         response = {
+#             'detections': detections,
+#             'image_url': f"http://{request.host}/processed/{processed_filename}",
+#             'location': location,
+#             'google_maps_link': google_maps_link
+#         }
+#         logging.debug('Detection successful, sending response')
+#         return jsonify(response)
+#     except Exception as e:
+#         logging.error(f'Error during detection: {e}')
+#         return jsonify({'error': str(e)}), 500
+
 @app.route('/detect', methods=['POST'])
 def detect():
     logging.debug('Received request for /detect')
@@ -826,17 +886,25 @@ def detect():
         processed_file_path = os.path.join(app.config['PROCESSED_FOLDER'], processed_filename)
         cv2.imwrite(processed_file_path, image_with_detections)
 
-        # Extract metadata and location
+        # Extract metadata and location (if EXIF data is used)
         metadata = extract_metadata(file_path)
-        location = extract_location(metadata)
-        google_maps_link = f"https://www.google.com/maps/place/{location.replace(' ', '+')}" if location else "Location not available"
+        location = extract_location(metadata) or "Location not available"
+
+        # Handle provided location data
+        latitude = request.form.get('latitude')
+        longitude = request.form.get('longitude')
+        if latitude and longitude:
+            location = f"Lat: {latitude}, Long: {longitude}"
+            google_maps_link = f"https://www.google.com/maps/place/{latitude},{longitude}"
+        else:
+            google_maps_link = "Location not available"
 
         # Load user data
         user_data = load_user_data()
         email = user_data.get('email')
         name = user_data.get('name')
 
-        # Prepare email
+        # Prepare and send email with location data included
         if email:
             subject = "Plant Disease Detection Report"
             body = f"""
@@ -867,6 +935,7 @@ def detect():
     except Exception as e:
         logging.error(f'Error during detection: {e}')
         return jsonify({'error': str(e)}), 500
+
 
 @app.route('/processed/<filename>')
 def processed_image(filename):
